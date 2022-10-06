@@ -1,0 +1,25 @@
+const express = require('express')
+const verify = require('./Verify')
+const { GetUSer, UpdateUserPicture, GetImage,ChangeInfo, Register, Login, Logout } = require('./Controler')
+const refresh = require('./RefreshToken')
+const { GetAllPosts, AddPost, UpdatePost, DeletePost, GetPost } = require('./Post/PostControler')
+const Upload = require('./Upload')
+const router = express.Router()
+
+
+
+router.get('/users', GetUSer, verify)
+router.get('/GetUsers', GetUSer)
+router.post('/user', Register)
+router.post('/Login', Login)
+router.get('/token', refresh)
+router.delete('/Logout', Logout)
+router.get('/posts', GetAllPosts)
+router.post('/addPost', AddPost, verify)
+router.get('/post', GetPost)
+router.put('/Update', UpdatePost)
+router.post('/upload', Upload, UpdateUserPicture)
+router.get('/GetIMG', GetImage)
+router.delete('/deletePost', DeletePost)
+router.put('/ChangeInfo',ChangeInfo)
+module.exports = router
