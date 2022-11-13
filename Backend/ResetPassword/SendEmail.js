@@ -9,8 +9,9 @@ require('dotenv').config()
 
 const sendEmail = async (email, subject, text, context) => {
     const oAuth2 = google.auth.OAuth2
-    const { client_secret, client_id, redirect_uris } = credentials.web;
-    
+    const client_secret = process.env.client_secret
+    const { client_id, redirect_uris } = credentials.web;
+
     try {
         function getAuthenticatedClient() {
             return new Promise((resolve, reject) => {
@@ -31,7 +32,7 @@ const sendEmail = async (email, subject, text, context) => {
         }
 
         const oauth2Client = await getAuthenticatedClient()
-        console.log("oauth is ", oauth2Client)
+       
 
         oauth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN })
         const accessToken = await new Promise((resolve, reject) => {
@@ -42,14 +43,14 @@ const sendEmail = async (email, subject, text, context) => {
                 resolve(token);
             });
         });
-        console.log("acessssss", accessToken)
+        
         oauth2Client.on("tokens", (tokens) => {
             if (tokens.refresh_token) {
                 const tokenPath = path.join(__dirname, 'token.json');
                 fs.writeFile(tokenPath, tokens.refresh_token)
-                console.log("tokref", tokens.refresh_token)
+               
             }
-            console.log(tokens.access_token)
+          
         })
 
         const transporter = nodemailer.createTransport({
@@ -83,7 +84,7 @@ const sendEmail = async (email, subject, text, context) => {
             subject: subject,
 
             text: text,
-            //  html: "<b>Hello world?</b>"
+            
             template: 'email',
             context: context,
             // attachments: [{ filename: "dt.jpg", path: "./Pic/dt.jpg" }]

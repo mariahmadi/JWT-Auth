@@ -7,13 +7,12 @@ dotenv.config()
 const app = express()
 const router = require('./Router')
 const cookieparser = require('cookie-parser')
-const multer = require('multer')
-const http = require('http')
+
 const logger = require('morgan')
 
 
 
-//app.use(express.static('public'))
+
 app.use('./uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));

@@ -91,7 +91,7 @@ const Uploaded = () => {
         <>
             <div className="Profile">
                 <div className="field">
-                    <figure className="image is-32x32">
+                    <figure className="image is-64x64">
                         <img className="is-rounded" src={`data:image/png;base64,${Profile1}`} width="30" height={50} />
                     </figure >
 

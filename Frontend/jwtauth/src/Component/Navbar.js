@@ -43,7 +43,7 @@ const Nav = () => {
                                 <Link className="  button is-danger is-rounded" to="/Add">Add Post</Link>
                             </div>
 
-                            <div className="navbar-item has-dropdown is-hoverable">
+                            <div className="navbar-item has-dropdown is-hoverable ">
                                 <a className="navbar-link">
                                     More
                                 </a>

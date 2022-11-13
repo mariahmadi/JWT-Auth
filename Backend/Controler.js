@@ -6,7 +6,7 @@ const crypto = require('crypto')
 require("dotenv").config();
 const upload = require('./Upload')
 const path = require('path')
-
+const { FetchUserId } = require('./Service/Post')
 const fs = require('fs')
 
 
@@ -24,10 +24,8 @@ const GetUSer = async (req, res, next) => {
 }
 const UpdateUserPicture = async (req, res, next) => {
     console.log("pic" + req.body)
-    const Token = req.cookies.refreshtoken
-    const user = await User.findAll({ where: { refresh_token: Token } })
-    const userId = user[0].id
-    console.log(userId)
+    const userId = await FetchUserId(req)
+
     try {
         upload(req, res, (err) => {
             if (err) { return res.sendStatus(403).json("Eroooor") }
@@ -49,9 +47,8 @@ const UpdateUserPicture = async (req, res, next) => {
 const ChangeInfo = async (req, res, next) => {
     const { name } = req.body
     try {
-        const Token = req.cookies.refreshtoken
-        const user = await User.findAll({ where: { refresh_token: Token } })
-        const userId = user[0].id
+        const userId = await FetchUserId(req)
+
         await User.update({ name: name }, { where: { id: userId } })
         res.send("Update Success")
         next()
@@ -64,7 +61,7 @@ const GetImage = async (req, res, next) => {
     try {
         const Token = req.cookies.refreshtoken
         const user = await User.findAll({ where: { refresh_token: Token } })
-        const userId = user[0].id
+       
         console.log("user" + user[0])
         console.log(user[0].Image)
         if (user[0].Image !== null) {

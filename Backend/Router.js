@@ -5,7 +5,7 @@ const refresh = require('./RefreshToken')
 const { GetAllPosts, AddPost, UpdatePost, PostView, LikeCounter, DeletePost, GetMyPost } = require('./Post/PostControler')
 const Upload = require('./Upload')
 const Reset = require('./ResetPassword/ResetPassword')
-const { CreateComment, ShowComment } = require('./Comment/CommentControler')
+const { CreateComment } = require('./Comment/CommentControler')
 const router = express.Router()
 
 
@@ -26,8 +26,6 @@ router.delete('/deletePost', DeletePost)
 router.put('/ChangeInfo', ChangeInfo)
 router.post('/Reset', Reset)
 router.post('/Post/:id', CreateComment)
-//router.post('/LPost/:id', Liked)
 router.post("/LikePost/:id", LikeCounter)
-router.get("/CommentShow/:id", ShowComment)
 router.post("/NewPass", NewPassword)
 module.exports = router

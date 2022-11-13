@@ -9,7 +9,8 @@ const Home = () => {
     const [limit, setLimit] = useState(4)
     const [skip, setSkip] = useState(0)
     const [pic, setPic] = useState([])
-    const [fetch, setIsfetch] = useState(false)
+    const [serachvalue, setserachValue] = useState('')
+    const [list, setList] = useState([])
 
 
     const [curpage, setCurpage] = useState(1)
@@ -26,6 +27,9 @@ const Home = () => {
     }
     useEffect(() => {
         Handle(limit, skip)
+        if (serachvalue) {
+            Search()
+        }
 
     }, [limit, skip])
     const Handle = async (limit, skip) => {
@@ -37,54 +41,41 @@ const Home = () => {
         setCurpage(response.data.data)
         setTotal(response.data.data.totalPost)
         setPic(response.data.pic)
-
+        setList(response.data.data.data)
     }
 
-    // <table className="table">
-    //                 <thead>
-    //                     <tr>
-    //                         <th><abbr title="Position">NO</abbr></th>
-    //                         <th>Title</th>
-    //                         <th>Content</th>
+    const Search = () => {
+      
+        const data = posts.filter((post) => {
 
-    //                     </tr>
-    //                 </thead>
-    //                 <tbody>
+            if (serachvalue === "") {
+                return post
 
-    //                     {posts.map((post, i) => {
-    //                         return (
-    //                             <tr key={post.id}>
-    //                                 <td>{i + 1}</td>
-    //                                 <td><Link to={`/Post/${post.id}`}>{post.title}</Link></td>
-    //                                 <td>{post.content}</td>
-    //                                 <td><Link to={`/Post/${post.id}`}>Comment</Link></td>
-    //                                 <td><Link to={`/Post/${post.id}`}><img src={`data:image/jpg;base64,${pic[i]}`} width={90} height={90} /></Link></td>
+            }
+            else {
+                return post.title.toLowerCase().includes(serachvalue)
+            }
 
-    //                             </tr>
-    //                         )
-    //                     })}
-    //                 </tbody>
+        })
 
+        setList(data)
 
-    //             </table>
-    //     <article key={i}>
-    //     <h2>{post.id}</h2>
-    //     <Link to={`/Post/${post.id}`}><img src={`data:image/jpg;base64,${pic[i]}`} width={100} height={100} /></Link>
-
-    //     <p>{i + 1}</p>
-    //     <Link to={`/Post/${post.id}`}>{post.title}</Link>
-    //     <h2>{post.content}</h2>
-    //     <Link to={`/Post/${post.id}`}>Comment</Link>
-    // </article>
+    }
     return (
         <>
             <section className="section">
                 <div className="Posts">
                     <div>
+
+                        <input className="input is-rounded is-info" type="text" placeholder="Search On Post Title" onChange={(e) => { setserachValue(e.target.value) }} />
+                        <br />
+                        <button className="button is-rounded is-info" type="submit" onClick={Search} >Search</button>
+                        <br />
+                        <br />
+
                         <h1>All Post</h1>
                         <h2>Total Post : {total}</h2>
-
-                        {posts.map((post, i) => {
+                        {list.map((post, i) => {
                             return (
 
                                 <div className="card" key={i}>

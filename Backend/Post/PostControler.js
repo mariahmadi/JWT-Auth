@@ -9,23 +9,16 @@ const { Comment } = require('../Model/ConfigModel').comment
 
 const AddPost = async (req, res, next) => {
 
-    console.log("reqqqqqqqqqq" + req.body)
     const userId = await FetchUserId(req)
-
-
     console.log(userId)
     try {
 
-
         Upload(req, res, (err) => {
             if (err) { return res.status(403).json("File Not Found") }
-            console.log(req.body.content)
-            console.log(req.body)
-            console.log(req.file)
+
             const title = req.body.title[0]
             const content = req.body.content[0]
-            console.log("first", title)
-            console.log(req.body.title)
+
             if (req.file) {
                 const pathtoImg = req.file.filename
                 Post.create({
@@ -57,28 +50,23 @@ const AddPost = async (req, res, next) => {
 const GetAllPosts = async (req, res) => {
     try {
 
-        const PageNumber = 1
-        console.log("PageNumber " + PageNumber)
+
+
         const limit = parseInt(req.query.limit) || 4
         const skip = parseInt(req.query.skip) || 0
 
-        console.log("query", req.query)
-        console.log("limit" + limit)
-
-        console.log("Skip", skip)
         const result = {}
         const totalPost = await Post.count()
         console.log(totalPost)
         let startIndex = skip * limit
         const endIndex = (skip + 1) * limit
 
-        const current = 1
+
         result.totalPost = totalPost
         if (startIndex > 0) {
             result.previous = {
                 skip: skip - 1,
                 limit: limit,
-
 
             }
         }
@@ -122,14 +110,14 @@ const GetAllPosts = async (req, res) => {
 }
 const LikeCounter = async (req, res) => {
     const { likes } = req.body.like
-    console.log("reqqqqq" + req.body, likes)
+
     const postId = req.params.id
-    //console.log(postId)
+
 
 
     try {
         await Post.update({ Like: likes }, { where: { id: postId } })
-        //  console.log("like" + LikeCount)
+
         res.json("like Submited")
 
     } catch (error) {
@@ -139,12 +127,8 @@ const LikeCounter = async (req, res) => {
 }
 const GetMyPost = async (req, res) => {
 
-    const Token = req.cookies.refreshtoken
 
-    const user = await User.findAll({
-        where: { refresh_token: Token }
-    })
-    const userId = user[0].id
+    const userId = await FetchUserId(req)
 
     try {
         const post = await Post.findAll({ where: { UserId: userId } })
@@ -163,8 +147,6 @@ const GetMyPost = async (req, res) => {
 
                 base2.push(base)
             }
-
-
 
         }
         res.json({ post: post, base: base2 })
@@ -198,7 +180,6 @@ const PostView = async (req, res, next) => {
         if (CommentCount > 0) {
             const CommentForPost = await Comment.findAll({ where: { PostId: id }, order: [["id", "DESC"]] })
 
-            // res.json(CommentForPost)
             Comments.push(CommentForPost)
         }
 
@@ -221,9 +202,9 @@ const UpdatePost = async (req, res) => {
                 id: id
             }
         })
-        console.log("Post is ", UpdatePost)
+      
         const PID = UpdatePost[0].id
-        console.log(PID)
+        
         await Post.update({ title: title, content: content }, { where: { id: PID } })
         res.send("Update Succesfulyy")
     } catch (error) {

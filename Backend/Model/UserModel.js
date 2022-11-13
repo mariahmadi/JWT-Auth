@@ -47,7 +47,7 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: DataTypes.NOW,
 
         },
-        //  PostId: Sequelize.TEXT
+       
 
     },
 
