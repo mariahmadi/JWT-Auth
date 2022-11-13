@@ -14,29 +14,59 @@ module.exports = (sequelize, Sequelize) => {
         refresh_token: {
             type: DataTypes.TEXT
         },
-        Image : {
-            type: Sequelize.BLOB('long')
+        Image: {
+            type: DataTypes.STRING
         }
     }, {
         freezeTableName: true
     })
     const Post = sequelize.define('Post', {
         title: Sequelize.TEXT,
-        content: Sequelize.TEXT
-
+        content: Sequelize.TEXT,
+        Image: Sequelize.STRING,
+        Like: Sequelize.TEXT,
+      
     }, {
         freezeTableName: true
     })
+    const RToken = sequelize.define('RToken', {
+        token: Sequelize.STRING,
+        Used: { type: DataTypes.INTEGER, defaultValue: 0 },
+        createdAt: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+            expires: 3600
+        }
+    },
 
+        { timestamps: false })
+    const Comment = sequelize.define('Comment', {
+        content: Sequelize.TEXT,
+        createdAt: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+
+        },
+        //  PostId: Sequelize.TEXT
+
+    },
+
+        { timestamps: false })
 
     User.hasMany(Post)
     Post.belongsTo(User)
 
+    User.hasMany(Comment)
+    Comment.belongsTo(User)
+    Post.hasMany(Comment)
+    Comment.belongsTo(Post)
+    User.hasOne(RToken)
+    RToken.belongsTo(User)
     sequelize.sync({ force: true })
-    console.log("Synce Both")
+    console.log("Synced Model")
 
-   
-    return {User,Post}
+
+    return { User, Post, RToken, Comment }
 }
 
 

@@ -1,36 +1,52 @@
 const { User } = require('./Model/ConfigModel').user
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
+const { RToken } = require('./Model/ConfigModel').RToken
+const crypto = require('crypto')
+require("dotenv").config();
+const upload = require('./Upload')
+const path = require('path')
+
+const fs = require('fs')
 
 
-const GetUSer = async (req, res) => {
+const GetUSer = async (req, res, next) => {
     try {
-        const Users = await User.findAll({
+        const users = await User.findAll({
             attributes: ['id', 'name', 'email'],
 
         })
-        res.json(Users)
+        res.json(users)
+        next()
     } catch (error) {
-        console.log("eror getuser sssss: " + error)
+        res.json(error)
     }
 }
-const UpdateUserPicture = async (req, res) => {
-    const { Image } = req.body
+const UpdateUserPicture = async (req, res, next) => {
+    console.log("pic" + req.body)
+    const Token = req.cookies.refreshtoken
+    const user = await User.findAll({ where: { refresh_token: Token } })
+    const userId = user[0].id
+    console.log(userId)
     try {
-        console.log(req.body)
-        const Token = req.cookies.refreshtoken
-        const user = await User.findAll({ where: { refresh_token: Token } })
-        const userId = user[0].id
-        console.log(userId)
-        await User.update({ Image: Image }, { where: { id: userId } })
+        upload(req, res, (err) => {
+            if (err) { return res.sendStatus(403).json("Eroooor") }
 
-        res.send("updateeeeee")
+            const pathToImg = fs.readFileSync(path.join('./uploads', req.file.filename))
+            const base64Img = pathToImg.toString("base64")
+
+            User.update({ Image: req.file.filename }, { where: { Id: userId } })
+            res.json(base64Img)
+        })
+        next()
+
     } catch (error) {
-        console.log("eror picture sssss: " + error)
+        console.log("error picture sssss: " + error)
+        res.status(403).json("Error")
     }
 
 }
-const ChangeInfo = async (req, res) => {
+const ChangeInfo = async (req, res, next) => {
     const { name } = req.body
     try {
         const Token = req.cookies.refreshtoken
@@ -38,59 +54,111 @@ const ChangeInfo = async (req, res) => {
         const userId = user[0].id
         await User.update({ name: name }, { where: { id: userId } })
         res.send("Update Success")
+        next()
     } catch (error) {
         console.log(error)
     }
 }
-const GetImage = async (req, res) => {
+const GetImage = async (req, res, next) => {
 
     try {
+        const Token = req.cookies.refreshtoken
+        const user = await User.findAll({ where: { refresh_token: Token } })
+        const userId = user[0].id
+        console.log("user" + user[0])
+        console.log(user[0].Image)
+        if (user[0].Image !== null) {
+            const pathToImg = fs.readFileSync(path.join('./uploads', user[0].Image))
+            console.log(pathToImg)
+            const base64Img = pathToImg.toString("base64")
+            res.json(base64Img)
+        } else {
 
+            const pathToImg = fs.readFileSync(path.join('./Pic', "Nullimages.png"))
+            console.log("pathhhhh", pathToImg)
+            const base64Img = pathToImg.toString("base64")
+            res.json(base64Img)
+        }
 
-        const Pic = await User.findAll({ attributes: ['Image'], where: { id: userId } })
-        console.log(Pic)
-        res.json(Pic[0])
+        next()
+
     } catch (error) {
         console.log(error)
+        res.status(403).json("Cant Get IT")
     }
 }
-const Register = async (req, res) => {
+const NewPassword = async (req, res, next) => {
+    const { token, id, data } = req.body
 
-    const { name, email, password, confpassword } = req.body
-    console.log(req.body)
-    if (password != confpassword) return res.status(403).json({ Msg: "Parsword Not Match " })
+    const tokenuser = await RToken.findAll({ where: { UserId: id } })
 
-    //const salt = await bcrypt.genSalt()
-    const HashedPassword = await bcrypt.hash(password, 10)
+    const userID = tokenuser[0].id
+    const hashedPass = await bcrypt.hash(data.password, 10)
+    console.log("id", userID)
+    try {
+        if (token === tokenuser[0].token && tokenuser[0].Used == 0) {
+
+            await User.update({ password: hashedPass }, { where: { id: id } })
+            await RToken.update({ Used: 1 }, { where: { UserId: id } })
+            res.json("Password Changed Succesfully Please Sign in")
+        }
+        next()
+    } catch (error) {
+        console.log(error)
+        res.status(403).json("Something Went Worng")
+    }
+}
+
+
+const Register = async (req, res, next) => {
+
+    const { data } = req.body
+
+    const user = await User.findOne({ where: { email: data.email } })
+
+    if (user !== null) {
+        return res.status(403).json({ Msg: "Email Already Exist" })
+    }
+    if (data.password != data.confpassword) return res.status(403).json({ Msg: "Parsword Not Match Please Insert Correcc" })
+
+
+    const HashedPassword = await bcrypt.hash(data.password, 10)
+    const token = crypto.randomBytes(32).toString('hex')
+
+
     try {
 
         await User.create({
-            name: name,
-            email: email,
+            name: data.name,
+            email: data.email,
             password: HashedPassword
         })
+        const newUser = await User.findOne({ where: { email: data.email } })
+
+        await RToken.create({
+            token: token,
+            UserId: newUser.id
+        })
         res.json({ Msg: "User Created Successfully" })
+        next()
     } catch (error) {
-        console.log("errordfgdfgd:" + error)
+        console.log("register error:" + error)
+        res.status(402).json("Cant Register User Try Again")
     }
 
 
 }
 
-const Login = async (req, res) => {
-
+const Login = async (req, res, next) => {
+    const { data } = req.body
     try {
         const user = await User.findAll({
-            where: { email: req.body.email }
+            where: { email: data.email }
         })
-        console.log(req.body)
 
-        const match = bcrypt.compareSync(req.body.password, user[0].password)
+        const match = await bcrypt.compare(data.password, user[0].password)
 
-        console.log("match is " + match)
-
-
-        if (!match) return res.status(400).json({ Msg: " Pasword Not Matched " })
+        if (!match) { return res.status(400).json({ Msg: " Pasword Not Matched " }) }
 
         const UserId = user[0].id
 
@@ -112,7 +180,7 @@ const Login = async (req, res) => {
 
     }
     catch (error) {
-        res.status(404).json({ msg: "Emaiiiiil not found" });
+        res.status(404).json({ msg: "Emaiiiiil Or Password is Wrong" });
         console.log(error)
     }
 }
@@ -142,4 +210,4 @@ const Logout = async (req, res) => {
     }
 }
 
-module.exports = { GetUSer, ChangeInfo, GetImage, UpdateUserPicture, Logout, Login, Register }
+module.exports = { GetUSer, NewPassword, ChangeInfo, GetImage, UpdateUserPicture, Logout, Login, Register }

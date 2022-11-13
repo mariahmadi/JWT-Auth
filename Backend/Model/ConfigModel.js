@@ -1,20 +1,20 @@
 const Sequelize = require('sequelize')
-//const DB = require('../connection')
+const connection = require('../connection')
 const tedious = require('tedious');
-
+require('dotenv').config()
 //const Connection=new tedious.Connection()
 
 
-
+console.log(connection.host)
 
 const Config = {
-    //driver: process.env.SQL_SERVER,
-    database: 'FooBar',
-    server: 'DESKTOP-GULV8VA',
-    user: 'sa',
-    password: '1',
-    host: 'localhost',
-    dialect: "mssql",
+
+    database: process.env.SQL_DATABASE,
+    server: process.env.SQL_SERVER,
+    user: process.env.SQL_USERNAME,
+    password: process.env.SQL_PASSWORD,
+    host: process.env.SQL_HOST,
+    dialect: 'mssql',
     port: 1433,
     pool: {
         max: 10,
@@ -29,19 +29,13 @@ const Config = {
 
 }
 const sequelize = new Sequelize(Config.database, Config.user, Config.password, {
-    // server: process.env.SQL_SERVER,
-    // dialect: "mssql",
-    // host: process.env.SQL_HOST,
-    // pool: {
-    //     max: Config.pool.max,
-    //     min: Config.pool.min
-    // }
-    database: 'FooBar',
-    server: 'DESKTOP-GULV8VA',
-    user: 'sa',
-    password: '1',
-    host: 'localhost',
-    dialect: "mssql",
+
+    database: process.env.SQL_DATABASE,
+    server: process.env.SQL_SERVER,
+    user: process.env.SQL_USERNAME,
+    password: process.env.SQL_PASSWORD,
+    host: process.env.SQL_HOST,
+    dialect: 'mssql',
     port: 1433,
     pool: {
         max: 10,
@@ -100,6 +94,9 @@ db.sequelize = sequelize
 db.Sequelize = Sequelize
 db.user = require('./UserModel')(sequelize, Sequelize)
 db.post = require('./UserModel')(sequelize, Sequelize)
+db.RToken = require('./UserModel')(sequelize, Sequelize)
+db.comment = require('./UserModel')(sequelize, Sequelize)
+
 module.exports = db
 
 

@@ -2,62 +2,71 @@ import react, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../PostComponent/UseAuth'
-
-
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 
 
 const Login = () => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+
     const navigate = useNavigate('')
-    const [msg, setMsg] = useState('')
     const { login, authed } = useAuth()
-    const { state } = useLocation()
 
-    const Auth = async (e) => {
-
-        e.preventDefault()
-
+    const schema = yup.object().shape({
+        email: yup.string().required(),
+        password: yup.string().required()
+    })
+    const { register, reset, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) })
+    const Auth = async (data) => {
         try {
 
-            await axios.post('http://localhost:5000/Login', { email: email, password: password, authed: authed })
+            await axios.post('http://localhost:5000/Login', { data })
+
+            reset()
 
             login().then(() => {
 
                 navigate("/Contact")
-
-
-                console.log(window.localStorage)
+                window.location.reload()
 
             })
         }
         catch (error) {
             if (error.response) {
-                setMsg(error.response.data.msg)
                 console.log(error.response.data)
             }
         }
-
     }
 
     return (
 
+        <div >
 
-        <div>
+            <section className="section">
 
+                <form calss="box" onSubmit={handleSubmit(Auth, onerror)}>
+                    <div className="Login">
+                        <div className="field">
+                            <label className="label">Email </label>
+                            <input className="input is-rounded  is-info" name='email' {...register('email', { required: true })}></input>
+                            {errors?.email && errors.email.message}
+                        </div>
 
-            <section>
+                        <div className="field">
 
-                <form onSubmit={Auth}>
-                    <label>Email</label>
-                    <input type="text" placeholder='Enter Email' value={email} onChange={(e) => setEmail(e.target.value)}></input>
-                    <label>password</label>
-                    <input type="password" placeholder='Enter Password' value={password} onChange={(e) => setPassword(e.target.value)}></input>
-
-                    <button>Submit</button>
-                    <br />
-                    <a href='/register'>Sign Up</a>
+                            <label className="label">Password</label>
+                            <input className="input is-rounded is-info" type="password" name='password' {...register('password', { required: true })}></input>
+                            {errors?.password && errors.password.message}
+                        </div>
+                        <button className='button is-primary is-rounded' type='submit'>Submit</button>
+                        <br />
+                        <a href='/ForgetPass'>Forget Password</a>
+                        <br />
+                        <a className="link" href='/register'>Sign Up</a>
+                    </div>
                 </form>
+                
 
             </section>
         </div>

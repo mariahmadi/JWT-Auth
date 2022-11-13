@@ -26,17 +26,22 @@ const Contact = () => {
 
     return (
         <>
-            <div>
+            <section className="section">
+                <div className="Conatct">
+                    <div className="field">
 
-                {edit && Send()}
-                <h1>contact me </h1>
-                <input ref={inputref}></input>
-                <button onClick={() => {
+                        {edit && Send()}
+                        <h1>contact me </h1>
+                        <input className="input is-rounded" placeholder="This Is Fake" ref={inputref}></input>
+                        <button className="button is rounded is-primary" onClick={() => {
 
-                    setEdit(true)
-                    Send()
-                }}>Contact</button>
-            </div>
+                            setEdit(true)
+                            Send()
+                        }}>Contact</button>
+                    </div>
+                </div>
+            </section>
+
         </>
 
     )

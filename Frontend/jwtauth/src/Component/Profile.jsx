@@ -4,32 +4,36 @@ import axios from "axios";
 import { useEffect } from "react";
 
 const Uploaded = () => {
-    const [upload, setUpload] = useState()
+
     const [image, setImage] = useState('')
+    const [Profile, setProfile] = useState([])
+    const [Profile1, setProfile1] = useState([])
+
+
     const [edit, setEdit] = useState(false)
     const [name, setName] = useState('')
+
     useEffect(() => {
-        AccessUser()
-    }, [name])
-    const handleChange = (e) => {
-        setUpload(e.target.file)
+        GetName()
+        UploadImage()
+    }, [Profile1])
+    const GetName = async () => {
 
-
-    }
-
-    const AccessUser = async () => {
         try {
             const response = await axios.get('http://localhost:5000/token')
-            console.log(response)
-            setToken(response.data.AccesToken)
             const decoded = jwtDecode(response.data.AccesToken)
-            console.log("decoded" + decoded)
             setName(decoded.name)
+
         } catch (error) {
-            console.log(error)
+            if (error.response) {
+                setMsg(error.response.data)
+                navigate("/")
+            }
         }
 
     }
+
+
     const Submit = () => {
 
         const register = () => {
@@ -37,42 +41,45 @@ const Uploaded = () => {
         }
         return (
             <div>
-                <form onSubmit={register}>
-                    <label>Your Username</label>
-                    <input type="text" value={name} onChange={(e) => { setName(e.target.value) }} ></input>
-                    <button type="submit">Submit</button>
+                <form className="box" onSubmit={register}>
+                    <label className="label">Your Username</label>
+                    <input className="input is-rounded is-primary" type="text" value={name} onChange={(e) => { setName(e.target.value) }} ></input>
+                    <button className="button is-rounded is-primary" type="submit">Submit</button>
                 </form>
             </div>)
     }
-    const UploadImage = () => {
-        const config = {
-            headers: {
-                'Accept': 'application/json text/html', "Content_type": 'application/json'
-            }
-        }
+
+    const UploadImage = async () => {
+
+
         try {
-            axios.get('http://localhost:5000/GetIMG', config)
+            await axios.get('http://localhost:5000/GetIMG',)
                 .then((res) => {
-                    console.log(res)
-                    setImage(res.data)
-                    console.log("Image Uploaded")
+
+
+                    setProfile1(res.data)
                 })
 
 
+
+
         } catch (error) {
-            console.log(error)
+            console.log("get image log" + error)
         }
     }
-    const handlePost = () => {
+    const handleChange = (e) => {
+        setImage(e.target.files[0])
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        const formdata = new FormData()
+        formdata.append('Image', image)
 
-
-        const formDate = new FormData()
-        formDate.append("Image", upload)
         try {
-            axios.post('http://localhost:5000/upload', formDate)
-                .then(() => {
+            await axios.post('http://localhost:5000/upload', formdata)
+                .then((res) => {
 
-                    console.log("File Sent SuccessFully")
+                    setProfile1(res.data)
                 })
         } catch (error) {
             console.log(error)
@@ -82,22 +89,33 @@ const Uploaded = () => {
 
     return (
         <>
-            <h1>Wellcome Back : {name}</h1>
-            <img src={image.data} alt="" />
-            <div>
-                <form onSubmit={handlePost}>
-                    <label>Profole Picture : </label>
-                    <input type="file" accept="image/jpeg,image/jpg,image/png" onChange={handleChange} ></input>
-                    <button type="submit">Save Change</button>
-                </form>
+            <div className="Profile">
+                <div className="field">
+                    <figure className="image is-32x32">
+                        <img className="is-rounded" src={`data:image/png;base64,${Profile1}`} width="30" height={50} />
+                    </figure >
+
+                </div>
+                <h1>Welcome :  {name}</h1>
+                <div className="imageBox">
+
+                </div>
+                <div>
+                    <form className="box" onSubmit={handleSubmit} encType="multipart/form-data" >
+                        <label className="label">Profole Picture : </label>
+                        <input className="input is-rounded is-primary" type="file" name="Image" accept="image/jpeg,image/jpg,image/png" onChange={handleChange} />
+                        <br />
+                        <br />
+                        <button className="button is-rounded is-link" type="submit" >Send </button>
+                    </form>
+                </div>
+                <button className="button is-rounded is-primary" onClick={() => {
+                    setEdit(true)
+
+                }}>Change Name</button>
+                {edit && Submit()}
             </div>
 
-            <button onClick={UploadImage}>Get Image</button>
-            <button onClick={() => {
-                setEdit(true)
-
-            }}>Change Name</button>
-            {edit && Submit()}
         </>
     )
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Fetched = () => {
 
@@ -8,6 +9,7 @@ const Fetched = () => {
     const [myPost, setMyPost] = useState([])
     const [post, setPost] = useState([])
     const [edit, setEdit] = useState(false)
+    const [img, setImg] = useState([])
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -19,10 +21,10 @@ const Fetched = () => {
     const GetPost = async () => {
 
 
-        const response = await axios.get('http://localhost:5000/post')
-
-        setMyPost(response.data)
-
+        const response = await axios.get('http://localhost:5000/GetMyPost')
+        console.log(response)
+        setMyPost(response.data.post)
+        setImg(response.data.base)
     }
     const HandleEdit = (i) => {
 
@@ -50,18 +52,20 @@ const Fetched = () => {
 
         }
         return (
-            <div>
+            <div className="EditBox">
+                <div className="field">
 
-                <form onSubmit={Register}>
-                    <label>Title : </label>
-                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}>
-                    </input>
-                    <label>Content : </label>
-                    <input type="text" value={content} onChange={(e) => setContent(e.target.value)}>
-                    </input>
-                    <button type="submit">Submit</button>
-                </form>
+                    <form className="box" onSubmit={Register}>
+                        <label className="label">Title : </label>
+                        <input className="input is-rounded is-success" type="text" value={title} onChange={(e) => setTitle(e.target.value)}>
+                        </input>
+                        <label className="label">Content : </label>
+                        <input className="input is-rounded is-success" type="text" value={content} onChange={(e) => setContent(e.target.value)}>
+                        </input>
+                        <button className="button is-rounded is-primary" type="submit">Submit</button>
+                    </form>
 
+                </div>
             </div>)
 
 
@@ -94,28 +98,29 @@ const Fetched = () => {
         <>
 
             <div>
-                <h1>My Post</h1>
+
                 {edit && Edited()}
-                <table>
-                    <thead>
+                <table className="table is-striped">
+                    <thead className="thead " >
                         <tr>
                             <th>No</th>
                             <th>Title</th>
                             <th>Content</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="tbody">
                         {myPost.map((pst, i) => {
                             return (
                                 <tr key={pst.id}>
-                                    <td>{i + 1}</td>
-                                    <td>{pst.title}</td>
-                                    <td>{pst.content}</td>
-                                    <td><button onClick={() => {
+                                    <td>{i + 1} </td>
+                                    <td>  <Link to={`Post/${pst.id}`}>{pst.title}</Link></td>
+
+                                    <td><img src={`data:image/jpg;base64,${img[i]}`} width="80" height={80} /></td>
+                                    <td><button className="button is-warning is-rounded" onClick={() => {
                                         setEdit(true)
                                         HandleEdit(i)
                                     }}>Edit</button></td>
-                                    <td><button onClick={() => handleDelete(i)}>Delete</button></td>
+                                    <td><button className="button is-danger is-rounded" onClick={() => handleDelete(i)}>Delete</button></td>
 
                                 </tr>
                             )

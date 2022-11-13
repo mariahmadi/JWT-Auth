@@ -73,18 +73,18 @@ const Dashboard = () => {
     }
 
     return (
-     
+
         <div>
             <h1>Welcome Back: {name}</h1>
-            <table>
-                <thead>
+            <table className='table is-striped"'>
+                <thead className='thead'>
                     <tr>
                         <th>No</th>
                         <th>Name</th>
                         <th>Email</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className='tbody'>
                     {users.map((user, i) => {
                         return (
                             <tr key={user.id}>
