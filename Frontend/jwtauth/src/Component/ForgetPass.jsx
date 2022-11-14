@@ -7,10 +7,27 @@ const ForgetPassWord = () => {
     const [email, setEmail] = useState('')
     const handleReset = (e) => {
         e.preventDefault()
-        axios.post('http://localhost:5000/Reset', { email: email })
-            .then((res) => {
-                console.log(res.data)
-            })
+
+        try {
+            axios.post('http://localhost:5000/Reset', { email: email })
+                .then((res) => {
+                    console.log(res.data)
+                    return (
+                        <div class="field">
+                            <div class="control is-medium is-loading">
+                                <input class="input is-medium is-primary" type="text" placeholder="Check Your Email" readOnly />
+
+                                <progress class="progress is-small is-primary" max="100">15%</progress>
+
+                            </div>
+                        </div>)
+                })
+        } catch (error) {
+            console.log(error)
+        }
+
+
+
 
     }
     return (

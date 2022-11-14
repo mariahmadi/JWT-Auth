@@ -72,14 +72,16 @@
     flex: 1;
 
 }
-.Postid{
+
+.Postid {
     position: relative;
     left: 10%;
     margin-left: -50px;
     width: 400px;
     height: 350px;
-    
+
 }
+
 .dialogbox .body {
     position: relative;
     max-width: 300px;
@@ -98,12 +100,21 @@
     height: 500px;
 }
 
-.ForgetPass Conatct {
+.ForgetPass {
     position: relative;
     left: 45%;
     margin-left: -50px;
-    width: 300px;
-    height: 300px;
+    width: 350px;
+    height: 400px;
+
+}
+
+.Resetpassword {
+    position: relative;
+    left: 45%;
+    margin-left: -50px;
+    width: 350px;
+    height: 400px;
 
 }
 
