@@ -1,4 +1,12 @@
-# Sequelize + Express + react +Node 
+# Sequelize(SQL_SERVER) + Express + React + Node 
 
-#THis Is Simple social App that You Can Add Post 
-# Thank You For Give Me feedBack
+#This Is Simple social App that You Can Add Post 
+
+Feature :
+
+login with user and password
+resetPassword with Oauth2
+
+RESTFULL_API
+
+
